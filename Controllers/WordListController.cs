@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Test.Models;
 
@@ -12,16 +10,12 @@ namespace Test.Controllers
         public WordListController()
         {
         }
-        [HttpGet]
-        public IActionResult GetById(int id)
-        {
-            return Ok();
-        }
 
         [HttpPost]
         [Consumes("application/x-www-form-urlencoded")]
         public IActionResult Post([FromForm] string text)
         {
+            if(text == null) return Problem(statusCode: 400, title: "Need to enter an text into text field.");
             WordList wordList = new(text);
 
             return Ok(wordList.GetTopList());

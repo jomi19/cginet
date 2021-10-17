@@ -7,57 +7,36 @@ namespace Test.Models
 {
     public class WordList
     {
-        public Dictionary <string, int> ListWords = new();
+        public Dictionary <string, int> wordCount = new();
         public WordList(string text) {
-            text = Regex.Replace(text, @"[.!,'?()]", "").Replace("\n", " ").ToLower();
+            text = Regex.Replace(text.Replace("\n", " "), @"[^a-zA-z ]", "").ToLower();
             string[] words = text.Split(' ');
 
             foreach(string word in words)
             {
-                if(!(ListWords.ContainsKey(word)))
+                if(!(wordCount.ContainsKey(word)))
                 {
-                    ListWords.Add(word, 1);
+                    wordCount.Add(word, 1);
                 } else {
-                    ListWords[word]++;
+                    wordCount[word]++;
                 }
             }
-
         }
 
         public Dictionary<String, int> GetTopList()
         {
-            List<String> topList = new();
-            Dictionary<String, int> outPut = new();
+            int loopCounter = 0;
+            Dictionary<String, int> topList = new();
+            var sortedDict = from entry in wordCount orderby entry.Value descending select entry;
 
-            foreach(KeyValuePair<string, int> word in ListWords)
+            foreach(KeyValuePair<string, int> kvp in sortedDict)
             {
-                if(topList.Count < 10) 
-                {
-                    topList.Add(word.Key);
-                } 
-                else 
-                {
-                    if(ListWords[topList[9]] < word.Value) 
-                    {
-                        topList[9] = word.Key;
-                    }
-                } 
-                topList.Sort(delegate(string x, string y)
-                {
-                    if(x == null && y == null) return 0;
-                    else if(x == null) return -1;
-                    else if (y == null) return 1;
-                    else return ListWords[x].CompareTo(ListWords[y]);
-                });
-                topList.Reverse();
+                loopCounter++;
+                topList.Add(kvp.Key, kvp.Value);
+                if(loopCounter == 10) break;
             }
 
-            foreach(string word in topList)
-            {
-                outPut.Add(word, ListWords[word]);
-            }
-            return outPut;
-        }
-        
+            return topList;
+        }  
     }
 }
